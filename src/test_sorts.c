@@ -147,6 +147,7 @@ qsort_t freebsd_shell;
 qsort_t freebsd_pre_shell;
 qsort_t openbsd;
 qsort_t netbsd;
+qsort_t macos;
 qsort_t bionic;
 qsort_t bionic_nopt;
 qsort_t bionic_pre;
@@ -245,6 +246,7 @@ static qstbl qsorts[] = {
 #if 1
     tblentry(openbsd)
     tblentry(netbsd)    // netbsd qsort 1.23
+    tblentry(macos)
     tblentry(dietlibc)
 #endif
 #if 1
