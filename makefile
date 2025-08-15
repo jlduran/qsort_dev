@@ -31,7 +31,7 @@ else
 # Binaries (executable and object files)
 BINDIR = ./x
 #CFLAGS = -O3 -Wall -Wextra -std=gnu99
-CFLAGS = -O3 -Wall -Wextra -std=gnu99 -DCOUNTSWAPS
+CFLAGS = -O3 -Wall -Wextra -std=gnu99 -DCOUNTSWAPS -Wno-implicit-int -Wno-return-mismatch -Wno-implicit-function-declaration
 o = o
 # non-Windows sources (Linux/Unix etc)
 SRCDIRNONWIN = ./src_nonwin
