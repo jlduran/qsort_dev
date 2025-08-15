@@ -145,6 +145,7 @@ qsort_t freebsd_nopt;
 qsort_t freebsd_pre;
 qsort_t freebsd_shell;
 qsort_t freebsd_pre_shell;
+qsort_t freebsd_libkern;
 qsort_t openbsd;
 qsort_t netbsd;
 qsort_t macos;
@@ -197,7 +198,6 @@ static qstbl qsorts[] = {
     tblentry(newlib)            // can go quadratic
     tblentry(nlopt)             // can go quadratic
     tblentry(picolibc)          // can go quadratic
-    tblentry(freebsd)           // can go quadratic
     tblentry(bionic)            // can go quadratic
     tblentry(reactos)           // can go quadratic
 #endif
@@ -215,10 +215,12 @@ static qstbl qsorts[] = {
     tblentry(reactos_pre_shell) // sorted precheck plus Shell if swap_cnt==0
 #endif
 #if 1
+    tblentry(freebsd)
     tblentry(freebsd_nopt)
     tblentry(freebsd_pre)
     tblentry(freebsd_shell)
     tblentry(freebsd_pre_shell)
+    tblentry(freebsd_libkern)
 #endif
 #if 1
     tblentry(bentley_mcilroy_pre)
