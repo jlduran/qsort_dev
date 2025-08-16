@@ -2,4 +2,4 @@
 
 #define _DIAGASSERT(x)
 
-#include "libs/netbsd/qsort.c@rev=1.23"
+#include "libs/netbsd/qsort.c@rev=1.24"

@@ -247,7 +247,7 @@ static qstbl qsorts[] = {
 #endif
 #if 1
     tblentry(openbsd)
-    tblentry(netbsd)    // netbsd qsort 1.23
+    tblentry(netbsd)    // netbsd qsort 1.24
     tblentry(macos)
     tblentry(dietlibc)
 #endif
