@@ -39,7 +39,8 @@ static unsigned char* array_index(unsigned char* base,
     return base + element_size * index;
 }
 
-void qsort_r(void* base_ptr,
+static
+void _qsort_r(void* base_ptr,
              size_t num_elements,
              size_t element_size,
              int (*compare)(const void*, const void*, void*),

@@ -31,5 +31,5 @@ void qsort(void* base_ptr,
            size_t element_size,
            int (*compare)(const void*, const void*))
 {
-	qsort_r(base_ptr, num_elements, element_size, compare_wrapper, (void*) compare);
+	_qsort_r(base_ptr, num_elements, element_size, compare_wrapper, (void*) compare);
 }

@@ -97,8 +97,9 @@ med3(char *a, char *b, char *c,
               :(cmp(b, c, cookie) > 0 ? b : (cmp(a, c, cookie) < 0 ? a : c ));
 }
 
+static
 void
-qsort_r(void *a, size_t n, size_t es,
+_qsort_r(void *a, size_t n, size_t es,
     int (*cmp)(const void *, const void *, void *), void *cookie)
 {
 	char *pa, *pb, *pc, *pd, *pl, *pm, *pn;
@@ -170,7 +171,7 @@ loop:	SWAPINIT(a, es);
 		/* Recurse for 1st side, iterate for 2nd side. */
 		if (s > es) {
 			if (r > es)
-				qsort_r(a, r / es, es, cmp, cookie);
+				_qsort_r(a, r / es, es, cmp, cookie);
 			a = pn - s;
 			n = s / es;
 			goto loop;
@@ -179,7 +180,7 @@ loop:	SWAPINIT(a, es);
 		/* Recurse for 2nd side, iterate for 1st side. */
 		if (r > es) {
 			if (s > es)
-				qsort_r(pn - s, s / es, es, cmp, cookie);
+				_qsort_r(pn - s, s / es, es, cmp, cookie);
 			n = r / es;
 			goto loop;
 		}
@@ -199,5 +200,5 @@ qsort(void *a, size_t n, size_t es,
     int (*cmp)(const void *, const void *))
 {
 
-	qsort_r(a, n, es, cmpnocookie, cmp);
+	_qsort_r(a, n, es, cmpnocookie, cmp);
 }
