@@ -40,7 +40,7 @@ static char *usage[] = {
 "    and https://github.com/izabera/qsortbench by Isabella Bosia.",
 "    Report format modeled on qsortbench.",
 "",
-"Usage: test_sorts [num] [-h -i -d -p -s -z -c]",
+"Usage: test_sorts [num] [-h -i -d -p -s -z -c -g]",
 "    -h  (or --help)  display usage and quit",
 "    num number of elements to sort (default 10000)",
 "    -i  test C int values",
@@ -52,6 +52,7 @@ static char *usage[] = {
 "    -v  no tests on front or back half reversed",
 "    -m  run small arrays test only (sanity test)",
 "    -r num   number of reps for each test",
+"    -g  GitHub Actions format",
 "",
 "    Default is to test all datatypes on Bentley-McIlroy data patterns.",
 "    One or more of -i, -d, -p, -s may be specified.",
@@ -317,6 +318,7 @@ static tagged_string_list_t dtypes[] = {
     {0, NULL}
     };
 
+static int github_actions = 0;
 
 /////////////////////////////// Timer stuff ////////////////////////
 typedef long long ticks_t;
@@ -330,7 +332,8 @@ static ticks_t get_timer_resolution()
     LARGE_INTEGER freq;
     if (!QueryPerformanceFrequency(&freq)
             || !freq.QuadPart) {
-        printf("Error: cannot get Windows timer resolution.\n");
+        printf("%scannot get Windows timer resolution.\n",
+            github_actions ? "::error::" : "Error: ");
         exit(123);
     }
     return freq.QuadPart;
@@ -340,7 +343,8 @@ inline static ticks_t get_ticks()
 {
     LARGE_INTEGER ticks;
     if (!QueryPerformanceCounter(&ticks)) {
-        printf("Error: cannot get Windows timer count.\n");
+        printf("%scannot get Windows timer count.\n",
+            github_actions ? "::error::" : "Error: ");
         exit(123);
     }
     return ticks.QuadPart;
@@ -498,7 +502,9 @@ static void showtime(ticks_t nticks)
 static void showtime(ticks_t nticks)
 {
     if ( nticks < 0 ) {
-        printf("***Timer error: %lld cannot be negative?", nticks);
+        printf("%sTimer error: %lld cannot be negative?",
+            github_actions ? "::error::" : "***",
+            nticks);
         return;
     }
     nticks = nticks * 1000000 / ticks_per_second;   // convert to microsecs
@@ -562,7 +568,8 @@ static void sort_data(qstbl *q, int *data, size_t n, int datatype,
         int check_excess_compares)
 {
 #if DEBUG
-printf("Running sort %s on %lld elements (type %c) distro %c modif %c mod %lld\n",
+printf("%sRunning sort %s on %lld elements (type %c) distro %c modif %c mod %lld\n",
+        github_actions ? "::debug::" : "",
         q->name, (ULL)n, datatype, distribution, modification, (ULL)modulus);
 #endif
     UL cksum = sum(data, n);
@@ -628,14 +635,16 @@ printf("Running sort %s on %lld elements (type %c) distro %c modif %c mod %lld\n
     assert(sum(data, n) == cksum);
     if (check_excess_compares) {
         if (test_compares > 1.5 * n * log(n) / log(2))
-            printf("!!!Compares: running sort %s on %lld elements (type %c)"
+            printf("%sCompares: running sort %s on %lld elements (type %c)"
                     " distro %c modif %c mod %lld %lld %5.3g\n",
+                    github_actions ? "::warning::" : "!!!",
                     q->name, (ULL)n, datatype, distribution, modification,
                     (ULL)modulus, test_compares,
                     (double)test_compares / ((double)n * log(n) / log(2)));
         else if (test_compares > 1.2 * n * log(n) / log(2))
-            printf("!!Compares: running sort %s on %lld elements (type %c)"
+            printf("%sCompares: running sort %s on %lld elements (type %c)"
                     " distro %c modif %c mod %lld %lld %5.3g\n",
+                    github_actions ? "::warning::" : "!!!",
                     q->name, (ULL)n, datatype, distribution, modification,
                     (ULL)modulus, test_compares,
                     (double)test_compares / ((double)n * log(n) / log(2)));
@@ -999,7 +1008,9 @@ static void run_tests(char *test_datatypes, size_t num, int use_izabera_tests,
                     continue;
                 //printf("!!! type: %c  distro: %c   modifier: %c\n",
                 //    dtypes[dt].t, tests_set[dp], modifs[mt].t);
-                printf("Testing %lu %s elements %s %s:\n", (UL)num,
+                printf("%sTesting %lu %s elements %s %s:\n",
+                        github_actions ? "::group::" : "",
+                        (UL)num,
                         dtypes[dt].str, tests_set[dp].str,
                         use_izabera_tests ? "(izaberra)" : modifs[mt].str);
                 for (int i = 0; i < num_sorts; i++) {
@@ -1044,7 +1055,8 @@ static void run_tests(char *test_datatypes, size_t num, int use_izabera_tests,
                     printf(" %d. %s", rank, qq[i]->name);
                     qq[i]->time_rank += rank;
                 }
-                printf("\n");
+                printf("%s\n",
+                    github_actions ? "::endgroup::" : "");
                 if (use_izabera_tests)
                     break;
             }
@@ -1053,7 +1065,8 @@ static void run_tests(char *test_datatypes, size_t num, int use_izabera_tests,
 
     // Final summary report
     qsort(qq, num_sorts, sizeof(qstbl *), compare_compares_rank);
-    printf("Best by rankings on compares:\n");
+    printf("%sBest by rankings on compares:\n",
+        github_actions ? "::group::" : "");
 #if COUNTSWAPS
     printf("   Tot.rank     Swaps     Compares      Time   Ratio Implementation\n");
 #else
@@ -1070,9 +1083,12 @@ static void run_tests(char *test_datatypes, size_t num, int use_izabera_tests,
                 (double)qq[i]->tot_compares / qq[0]->tot_compares,
                 qq[i]->name);
     }
+    if (github_actions)
+        printf("::endgroup::\n");
 
     qsort(qq, num_sorts, sizeof(qstbl *), compare_time_rank);
-    printf("Best by rankings on time:\n");
+    printf("%sBest by rankings on time:\n",
+        github_actions ? "::group::" : "");
 #if COUNTSWAPS
     printf("   Tot.rank     Swaps     Compares      Time   Ratio Implementation\n");
 #else
@@ -1089,6 +1105,8 @@ static void run_tests(char *test_datatypes, size_t num, int use_izabera_tests,
                 (double)qq[i]->tot_time / qq[0]->tot_time,
                 qq[i]->name);
     }
+    if (github_actions)
+        printf("::endgroup::\n");
 }
 
 static void show_usage()
@@ -1111,8 +1129,11 @@ int main(int argc, char **argv)
     //printf("%s\n", datatypes);
     int nreps = 1;
     int c;
-    while ((c = getopt(argc, argv, "+hidpszcvmr:n:")) != -1) {
+    while ((c = getopt(argc, argv, "+ghidpszcvmr:n:")) != -1) {
         switch (c) {
+            case 'g':
+                github_actions = 1;
+                break;
             case 'h':
                 show_usage();
                 return 0;
